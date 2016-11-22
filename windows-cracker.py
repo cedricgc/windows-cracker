@@ -187,12 +187,12 @@ def main():
 
     if password == '':
         print('Password not found, exiting')
-        sys.exit(1)
+        return 2
 
     sam_hashes = samGrab(args.ip_address, args.username, password)
-    if not sam_hashes:
+    if not sam_hashes or sam_hashes == ['']:
         print('Unable to grab hashes')
-        return 2
+        return 3
     print('Hashes acquired')
 
     ip_addrs = osFingerprint(args.ip_range)
