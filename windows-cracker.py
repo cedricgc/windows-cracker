@@ -1,3 +1,6 @@
+
+
+import argparse
 import subprocess
 import sys
 
@@ -34,6 +37,11 @@ def formatCrackmapSam(input):
 def formatNmapO(input):
 
 def main():
+    parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
+    parser.add_argument('ip_address', help='ip address of the windows target host')
+    parser.add_argument('username', help='username of windows administrator')
+    parser.add_argument('password', help='password of windows administrator')
+    args = parser.parse_args()
 
 
 if __name__ == '__main__':
