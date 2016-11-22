@@ -30,7 +30,19 @@ def attemptLogon(hashes, ips):
 
 # input: list of hashes
 # output: The correctly formatted hashes for use in crackmapexec logon attempts
-def formatCrackmapSam(input):
+def formatCrackmapSam(hashes):
+    result = []
+    for hash in hashes:
+        username = ""
+        hash_pass = ""
+        end_of_username = hash.find(":")
+        if idx == -1:
+            continue
+        username = hash[:end_of_username]
+        start_of_hash = hash.find(":", end_of_username+1)
+        hash_pass = hash[start_of_hash+1:-3]
+        result.append((username, hash_pass))
+    return result
 
 # input: the std.out results of running nmap -O on a given IP range
 # output: a list containing the IP addresses (as strings) of any machines nmap thinks are windows
