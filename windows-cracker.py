@@ -105,6 +105,8 @@ def attemptLogon(hashes, ips):
                     shell=True).decode("utf-8").strip()
             if ip not in results:
                 results[ip] = []
+            if result == "":
+                result = "Failed"
             results[ip].append((username, result))
     return results
 
