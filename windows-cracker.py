@@ -85,7 +85,6 @@ def main():
     parser.add_argument('username', help='username of windows administrator')
     parser.add_argument('password', help='password of windows administrator')
     args = parser.parse_args()
-    osFingerprint('10.202.208.0-255')
 
     executables = [
         'crackmapexec',
