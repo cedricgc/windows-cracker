@@ -29,7 +29,7 @@ def attemptLogon(hashes, ips):
 # Helper methods
 
 # input: list of hashes
-# output: The correctly formatted hashes for use in crackmapexec logon attempts
+# output: List of tuples (username, hash) for use in crackmapexec logon attempts
 def formatCrackmapSam(hashes):
     result = []
     for hash in hashes:
