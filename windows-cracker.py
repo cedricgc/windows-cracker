@@ -31,7 +31,7 @@ def osFingerprint(ipRange):
         chunks.append(output[0:pt])
     for c in chunks:
         thisip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', c[0])
-        if len(thisip) = 0:
+        if len(thisip) == 0:
             continue
         windows = False
         for i in range(1, len(c))
