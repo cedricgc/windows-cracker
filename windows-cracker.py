@@ -25,6 +25,8 @@ def osFingerprint(ipRange):
     while len(output) > 0:
         while output[0] == '':
             output = output[1:]
+        if len(output) == 0:
+            continue
         pt = 0
         while output[pt] != '':
             pt = pt + 1
