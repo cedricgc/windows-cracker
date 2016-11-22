@@ -34,7 +34,7 @@ def osFingerprint(ipRange):
         if len(thisip) == 0:
             continue
         windows = False
-        for i in range(1, len(c))
+        for i in range(1, len(c)):
             if windows:
                 continue
             if '445/tcp' in c[i]:
