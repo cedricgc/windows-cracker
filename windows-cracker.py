@@ -1,6 +1,6 @@
-
-
 import argparse
+import re
+import shutil
 import subprocess
 import sys
 
@@ -15,8 +15,33 @@ def samGrab(ip, username, password):
 
 # Step 2: use nmap to find windows machines on the network
 # ip: a string IP address (potentially containing ranges) for the network
-# Returns: the std.out results of running nmap -O
+# Returns: a list of Windows IP addresses
 def osFingerprint(ipRange):
+    command = 'nmap -O ' + ipRange
+    output = subprocess.check_output(command, shell=True).decode("utf-8").split('\n')
+    output = output[2:]
+    result = [];
+    chunks = [];
+    while len(output) > 0:
+        while output[0] == '':
+            output = output[1:]
+        pt = 0
+        while output[pt] != '':
+            pt = pt + 1
+        chunks.append(output[0:pt])
+    for c in chunks:
+        thisip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', c[0])
+        if len(thisip) = 0:
+            continue
+        windows = False
+        for i in range(1, len(c))
+            if windows:
+                continue
+            if '445/tcp' in c[i]:
+                windows = True
+        if windows:
+            result.append[thisip]
+    return result
 
 # Step 3: use crackmapexec to try and log on to the windows machines
 # hashes: the correctly formatted (List of tuples) hashes from the SAM grab
@@ -54,9 +79,14 @@ def formatCrackmapSam(hashes):
         result.append((username, hash_pass))
     return result
 
-# input: the std.out results of running nmap -O on a given IP range
-# output: a list containing the IP addresses (as strings) of any machines nmap thinks are windows
-def formatNmapO(input):
+def check_executables(executables):
+    """Check if required programs are present on system before continuing"""
+    not_found = []
+    for executable in executables:
+        if shutil.which(executable) == None:
+            not_found.append(executable)
+
+    return not_found
 
 def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
@@ -64,6 +94,22 @@ def main():
     parser.add_argument('username', help='username of windows administrator')
     parser.add_argument('password', help='password of windows administrator')
     args = parser.parse_args()
+
+    executables = [
+        'crackmapexec',
+        'sed',
+        'awk',
+        'nmap'
+    ]
+    not_found = check_executables(executables)
+
+    if not_found != []:
+        joined = ', '.join(not_found)
+        print('Missing programs required to run windows-cracker: {}'.format(joined))
+        print('Ensure listed programs are in your path before running')
+        return 1
+
+    return 0
 
 
 if __name__ == '__main__':
