@@ -71,7 +71,7 @@ def formatCrackmapSam(hashes):
         username = ""
         hash_pass = ""
         end_of_username = hash.find(":")
-        if idx == -1:
+        if end_of_username == -1:
             continue
         username = hash[:end_of_username]
         start_of_hash = hash.find(":", end_of_username+1)
