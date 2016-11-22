@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 # Step 1: use crackmapexec to do a SAM grab
 # ip: a string IP address for the domain controller
@@ -34,3 +35,8 @@ def formatCrackmapSam(input):
 # output: a list containing the IP addresses (as strings) of any machines nmap thinks are windows
 def formatNmapO(input):
 
+def main():
+
+if __name__ == '__main__':
+    return_code = main()
+    sys.exit(return_code)
