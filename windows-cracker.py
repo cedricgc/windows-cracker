@@ -1,5 +1,6 @@
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 
@@ -54,7 +55,7 @@ def attemptLogon(hashes, ips):
 # Helper methods
 
 # input: list of hashes
-# output: The correctly formatted hashes for use in crackmapexec logon attempts
+# output: List of tuples (username, hash) for use in crackmapexec logon attempts
 def formatCrackmapSam(hashes):
     result = []
     for hash in hashes:
@@ -69,6 +70,15 @@ def formatCrackmapSam(hashes):
         result.append((username, hash_pass))
     return result
 
+def check_executables(executables):
+    """Check if required programs are present on system before continuing"""
+    not_found = []
+    for executable in executables:
+        if shutil.which(executable) == None:
+            not_found.append(executable)
+
+    return not_found
+
 def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
     parser.add_argument('ip_address', help='ip address of the windows target host')
@@ -76,6 +86,22 @@ def main():
     parser.add_argument('password', help='password of windows administrator')
     args = parser.parse_args()
     osFingerprint('10.202.208.0-255')
+
+    executables = [
+        'crackmapexec',
+        'sed',
+        'awk',
+        'nmap'
+    ]
+    not_found = check_executables(executables)
+
+    if not_found != []:
+        joined = ', '.join(not_found)
+        print('Missing programs required to run windows-cracker: {}'.format(joined))
+        print('Ensure listed programs are in your path before running')
+        return 1
+
+    return 0
 
 
 if __name__ == '__main__':
