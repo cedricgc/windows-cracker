@@ -1,6 +1,7 @@
 
 
 import argparse
+import shutil
 import subprocess
 import sys
 
@@ -48,12 +49,37 @@ def formatCrackmapSam(hashes):
 # output: a list containing the IP addresses (as strings) of any machines nmap thinks are windows
 def formatNmapO(input):
 
+def check_executables(executables):
+    """Check if required programs are present on system before continuing"""
+    not_found = []
+    for executable in executables:
+        if shutil.which(executable) == None:
+            not_found.append(executable)
+
+    return not_found
+
 def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
     parser.add_argument('ip_address', help='ip address of the windows target host')
     parser.add_argument('username', help='username of windows administrator')
     parser.add_argument('password', help='password of windows administrator')
     args = parser.parse_args()
+
+    executables = [
+        'crackmapexec',
+        'sed',
+        'awk',
+        'nmap'
+    ]
+    not_found = check_executables(executables)
+
+    if not_found != []:
+        joined = ', '.join(not_found)
+        print('Missing programs required to run windows-cracker: {}'.format(joined))
+        print('Ensure listed programs are in your path before running')
+        return 1
+
+    return 0
 
 
 if __name__ == '__main__':
