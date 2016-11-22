@@ -29,8 +29,8 @@ def attemptLogon(hashes, ips):
 # output: a list containing all IP addresses covered by those ranges
 def ipRange(ip):
 
-# input: the std.out results of running a crackmap SAM grab
-# output: The correctly formatted
+# input: list of hashes
+# output: The correctly formatted hashes for use in crackmapexec logon attempts
 def formatCrackmapSam(input):
 
 # input: the std.out results of running nmap -O on a given IP range
@@ -38,6 +38,7 @@ def formatCrackmapSam(input):
 def formatNmapO(input):
 
 def main():
+
 
 if __name__ == '__main__':
     return_code = main()
