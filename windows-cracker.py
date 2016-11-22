@@ -10,8 +10,8 @@ import sys
 # password: string (for the above IP)
 # Returns: a list where each element is the formatted username and hash
 def samGrab(ip, username, password):
-  command = 'crackmapexec --sam ' + ip + ' -u ' + username + ' -p ' + password + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^.*:::$/{print $6}'"""
-  return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
+    command = 'crackmapexec --sam ' + ip + ' -u ' + username + ' -p ' + password + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^.*:::$/{print $6}'"""
+    return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
 
 # Step 2: use nmap to find windows machines on the network
 # ip: a string IP address (potentially containing ranges) for the network
