@@ -25,10 +25,6 @@ def attemptLogon(hashes, ips):
 
 # Helper methods
 
-# input: a string IP address that may contain ranges (i.e. 1.2.3.4-6)
-# output: a list containing all IP addresses covered by those ranges
-def ipRange(ip):
-
 # input: list of hashes
 # output: The correctly formatted hashes for use in crackmapexec logon attempts
 def formatCrackmapSam(input):
