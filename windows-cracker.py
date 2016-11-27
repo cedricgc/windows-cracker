@@ -155,8 +155,11 @@ def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
     parser.add_argument('ip_address', help='ip address of the windows target host')
     parser.add_argument('username', help='username of windows administrator')
-    parser.add_argument('password', help='password of windows administrator')
     parser.add_argument('ip_range', help='range of the boxes to attempt to log in to')
+    # One of either the password or dictionary path must be supplied
+    pass_group = parser.add_mutually_exclusive_group(required=True)
+    pass_group.add_argument('-p', '--password', help='password of windows administrator; if not given windows-cracker will use hydra to crack the password')
+    pass_group.add_argument('-d', '--dictionary', help='path to dictonary file hydra will use to crack the password')
     args = parser.parse_args()
 
     executables = [
@@ -165,6 +168,11 @@ def main():
         'awk',
         'nmap'
     ]
+    crack_exec = [
+        'hydra'
+    ]
+    if args.dictionary:
+        executables.extend(crack_exec)
     not_found = check_executables(executables)
 
     if not_found != []:
