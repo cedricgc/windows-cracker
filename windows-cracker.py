@@ -3,6 +3,7 @@
 
 
 import argparse
+from pprint import pprint
 import re
 import shutil
 import subprocess
@@ -179,7 +180,7 @@ def main():
     formatted_sam_hashes = formatCrackmapSam(sam_hashes)
     print('Hashes formatted')
     result_dict = attemptLogon(formatted_sam_hashes, ip_addrs)
-    print(result_dict)
+    pprint(result_dict)
 
     return 0
 
