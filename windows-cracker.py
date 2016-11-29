@@ -185,7 +185,7 @@ def main():
 
     password = args.password or hydraPass(args.ip_address, args.username, args.dictionary)
 
-    if password = '':
+    if password == '':
         print('Password not found, exiting')
         sys.exit(1)
         
