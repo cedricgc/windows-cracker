@@ -57,7 +57,7 @@ def osFingerprint(ipRange):
     """
     command = 'nmap -p 445 --open ' + ipRange
     output = subprocess.check_output(command, shell=True).decode("utf-8").strip().split('\n')
-    output = output[2:]
+    output = output[1:]
     result = [];
     chunks = [];
     while len(output) > 0:
