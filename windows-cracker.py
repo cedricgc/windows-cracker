@@ -195,7 +195,10 @@ def main():
     print('Hashes formatted')
 
     result_dict = attemptLogon(formatted_sam_hashes, ip_addrs)
-    pprint(result_dict)
+    if(not result_dict):
+        print("No results found")
+    else:
+        pprint(result_dict)
 
     return 0
 
