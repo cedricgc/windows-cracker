@@ -185,6 +185,10 @@ def main():
 
     password = args.password or hydraPass(args.ip_address, args.username, args.dictionary)
 
+    if password = '':
+        print('Password not found, exiting')
+        sys.exit(1)
+        
     sam_hashes = samGrab(args.ip_address, args.username, password)
     print('Hashes acquired')
 
